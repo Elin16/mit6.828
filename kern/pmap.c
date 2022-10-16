@@ -437,6 +437,19 @@ int
 page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 {
 	// Fill this function in
+	pte_t * pte = pgdir_walk(pgdir, va, 1);
+	if( pte == NULL){// out of memory
+		return -E_NO_MEM;
+	}
+	// find pte
+	pp->pp_ref ++; // for the cornner case, ensure that pp will not be freed.
+
+	if( (*pte) & PTE_P){// already mapped
+		page_remove(pgdir, va);
+		tlb_invalidate(pgdir,va);
+	}
+	
+	*pte = page2pa(pp) | perm | PTE_P;
 	return 0;
 }
 
@@ -487,6 +500,17 @@ void
 page_remove(pde_t *pgdir, void *va)
 {
 	// Fill this function in
+	pte_t * pte_store;
+	struct PageInfo* page = page_lookup(pgdir, va, &pte_store);
+	if( page == NULL){
+		return ;
+	}
+	page->pp_ref--;
+	if(page->pp_ref == 0){
+		page_free(page);
+	}
+	*pte_store = 0;
+	tlb_invalidate(pgdir, va);
 }
 
 //
