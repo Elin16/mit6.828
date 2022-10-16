@@ -150,11 +150,11 @@ mem_init(void)
 	// array.  'npages' is the number of physical pages in memory.  Use memset
 	// to initialize all fields of each struct PageInfo to 0.
 	// Your code goes here:
-
+	cprintf("debug1\n");
 	int page_mem_size = sizeof(struct PageInfo) * npages;
 	pages = (struct PageInfo *) boot_alloc(page_mem_size);
 	memset(pages, 0, page_mem_size);
-
+	cprintf("debug2\n");
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
 	// up the list of free physical pages. Once we've done so, all further
@@ -162,7 +162,7 @@ mem_init(void)
 	// particular, we can now map memory using boot_map_region
 	// or page_insert
 	page_init();
-
+	cprintf("debug3\n");
 	check_page_free_list(1);
 	check_page_alloc();
 	check_page();
@@ -318,7 +318,6 @@ page_free(struct PageInfo *pp)
 	if(pp->pp_link != NULL){
 		panic("The page to be freed still is freed already!");
 	}
-	pp->pp_ref = 0;
 	pp->pp_link = page_free_list;
 	page_free_list = pp;
 	return ;
