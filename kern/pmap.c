@@ -374,6 +374,7 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
 			return NULL;
 		}
 	}
+
 	return (pte_t*) KADDR(PTE_ADDR(pde)) + pte_index;
 }
 
@@ -392,6 +393,19 @@ static void
 boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm)
 {
 	// Fill this function in
+	uint32_t page_num = size / PGSIZE;
+	if(size % PGSIZE){
+		page_num += 1;
+	}
+	for(page_num; page_num; page_num--){
+		pte_t * pte = pgdir_walk(pgdir, va, 1);
+		if( pte == NULL){
+			panic("boot_map_regin(): Out of memory.");
+		}
+		*pte = pa | perm | PTE_P;
+		pa += PGSIZE;
+		va += PGSIZE;
+	}
 }
 
 //
@@ -441,7 +455,17 @@ struct PageInfo *
 page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
 {
 	// Fill this function in
-	return NULL;
+	pte_t *pte = pgdir_walk(pgdir, va, 0);
+	if( pte == NULL || (*pte) & PTE_P == 0){
+		return NULL;
+	}
+
+	physaddr_t page_pa = PTE_ADDR(pte);
+	struct PageInfo* page_va = pa2page(page_pa);
+	if( pte_store != NULL){
+		*pte_store = pte;
+	}
+	return page_va;
 }
 
 //
