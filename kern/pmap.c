@@ -399,7 +399,7 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 		page_num += 1;
 	}
 	for(page_num; page_num; page_num--){
-		pte_t * pte = pgdir_walk(pgdir, va, 1);
+		pte_t * pte = pgdir_walk(pgdir,(uintptr_t *) va, 1);
 		if( pte == NULL ){
 			panic("boot_map_regin(): Out of memory.");
 		}
