@@ -360,7 +360,7 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
 	uint32_t pte_index = PTX(va);
 	pde_t pde = pgdir[pde_index];
 
-	if( (pde) & PTE_P == 0){// The relevant page table page not exist.
+	if( (pde & PTE_P ) == 0){// The relevant page table page not exist.
 		if(create){
 			struct PageInfo* new_page = page_alloc(1);
 			if(new_page == NULL){
@@ -398,7 +398,7 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 		page_num += 1;
 	}
 	for(page_num; page_num; page_num--){
-		pte_t * pte = pgdir_walk(pgdir, va, 1);
+		pte_t * pte = pgdir_walk(pgdir, &va, 1);
 		if( pte == NULL){
 			panic("boot_map_regin(): Out of memory.");
 		}
@@ -441,7 +441,7 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm)
 	if( pte == NULL){// out of memory
 		return -E_NO_MEM;
 	}
-	// find pte
+	// find pte 
 	pp->pp_ref ++; // for the cornner case, ensure that pp will not be freed.
 
 	if( (*pte) & PTE_P){// already mapped
@@ -469,7 +469,7 @@ page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
 {
 	// Fill this function in
 	pte_t *pte = pgdir_walk(pgdir, va, 0);
-	if( pte == NULL || (*pte) & PTE_P == 0){
+	if( pte == NULL || ((*pte) & PTE_P) == 0){
 		return NULL;
 	}
 
