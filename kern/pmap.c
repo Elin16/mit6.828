@@ -265,7 +265,7 @@ page_init(void)
 		if (i == 0){
 			pages[i].pp_ref = 1;	
 			pages[i].pp_link = NULL;
-		}else if (io_phys_mem_start_page <= i && ext_phys_mem_start_page < i){
+		}else if (io_phys_mem_start_page <= i && i< ext_phys_mem_start_page){
 			pages[i].pp_ref = 1;	
 			pages[i].pp_link = NULL;
 		}else{
