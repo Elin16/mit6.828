@@ -473,7 +473,7 @@ page_lookup(pde_t *pgdir, void *va, pte_t **pte_store)
 		return NULL;
 	}
 
-	physaddr_t page_pa = PTE_ADDR(pte);
+	physaddr_t page_pa = PTE_ADDR(*pte);
 	struct PageInfo* page_va = pa2page(page_pa);
 	if( pte_store != NULL){
 		*pte_store = pte;
