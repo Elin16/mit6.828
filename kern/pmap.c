@@ -174,7 +174,7 @@ mem_init(void)
 	//    - pages itself -- kernel RW, user NONE
 	// Your code goes here:
 	boot_map_region(kern_pgdir, UPAGES, npages*sizeof(struct PageInfo), PADDR(pages), PTE_U);
-	cprintf("npages*sizeof(PageInfo):%d\nsizeof(PageInfo:%d)",npages*sizeof(struct PageInfo),sizeof(struct PageInfo));
+	//cprintf("npages*sizeof(PageInfo):%d\nsizeof(PageInfo:%d)",npages*sizeof(struct PageInfo),sizeof(struct PageInfo));
 	//page itself?
 	//////////////////////////////////////////////////////////////////////
 	// Use the physical memory that 'bootstack' refers to as the kernel
