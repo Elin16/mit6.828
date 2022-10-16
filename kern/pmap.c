@@ -164,9 +164,11 @@ mem_init(void)
 	page_init();
 	cprintf("debug3\n");
 	check_page_free_list(1);
+	cprintf("debug4\n");
 	check_page_alloc();
+	cprintf("debug5\n");
 	check_page();
-
+	cprintf("debug6\n");
 	//////////////////////////////////////////////////////////////////////
 	// Now we set up virtual memory
 
