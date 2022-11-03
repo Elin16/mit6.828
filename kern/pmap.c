@@ -213,8 +213,9 @@ mem_init(void)
 	// Your code goes here:
 	boot_map_region(kern_pgdir, KERNBASE, 0xffffffff - KERNBASE, 0, PTE_W);
 	// Check that the initial page directory has been set up correctly.
+	cprintf("We are checking !");
 	check_kern_pgdir();
-
+	cprintf("We are finished !");
 	// Switch from the minimal entry page directory to the full kern_pgdir
 	// page table we just created.	Our instruction pointer should be
 	// somewhere between KERNBASE and KERNBASE+4MB right now, which is
