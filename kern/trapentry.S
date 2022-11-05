@@ -71,6 +71,7 @@ TRAPHANDLER_NOEC(DefaultHandler, T_DEFAULT)
 /*
  * Lab 3: Your code here for _alltraps
  */
+ .global _alltraps
 _alltraps:
 	pushl %ds 
 	pushl %es 
