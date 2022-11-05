@@ -350,13 +350,15 @@ load_icode(struct Env *e, uint8_t *binary)
 	if (ELFHDR->e_magic != ELF_MAGIC) {
 		panic("load_icode(): Given binary ifs not ELF.");
 	}
-	ph = (struct Proghdr*) ((uint32_t)ELFHDR + ELFHDR->e_phoff);
+	e->env_tf.tf_eip = ELFHDR->e_entry;
+	ph = (struct Proghdr*) (binary + ELFHDR->e_phoff);
 	lcr3(PADDR(e->env_pgdir));
-	for (int i = 0; i < ELFHDR->e_phnum; ++i){
-		if( ph[i].p_type == ELF_PROG_LOAD){
-			region_alloc(e, (void*)ph[i].p_va, ph[i].p_memsz);
-			memset((void*)ph[i].p_va, 0,ph[i].p_memsz);
-			memcmp((void*)ph[i].p_va, binary + ph[i].p_offset, ph[i].p_filesz);
+
+	for (; ph < ph + ELFHDR->e_phnum; ++ph){
+		if( ph->p_type == ELF_PROG_LOAD){
+			region_alloc(e, (void*)ph->p_va, ph->p_memsz);
+			memmove((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
+			memset((void*)ph->p_va + ph->p_filesz, 0, ph->p_memsz-ph->p_filesz);
 		}
 	}
 	
@@ -366,7 +368,6 @@ load_icode(struct Env *e, uint8_t *binary)
 	// LAB 3: Your code here.
 	region_alloc(e, (void *)(USTACKTOP - PGSIZE), PGSIZE);
 	lcr3(PADDR(kern_pgdir));
-	e->env_tf.tf_eip = ELFHDR->e_entry;
 }
 
 //
