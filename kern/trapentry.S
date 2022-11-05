@@ -54,26 +54,25 @@ TRAPHANDLER_NOEC(OflowHandler, T_OFLOW)
 TRAPHANDLER_NOEC(BoundHandler, T_BOUND)
 TRAPHANDLER_NOEC(IllopHandler, T_ILLOP)
 TRAPHANDLER_NOEC(DeviceHandler, T_DEVICE)
-TRAPHANDLER_NOEC(DblfltHandler, T_DBLFLT)
+TRAPHANDLER(DblfltHandler, T_DBLFLT)
 /*T_COPROC is reserved*/
-TRAPHANDLER_NOEC(TssHandler, T_TSS)
-TRAPHANDLER_NOEC(SegnpHandler, T_SEGNP)
-TRAPHANDLER_NOEC(StackHandler, T_STACK)
-TRAPHANDLER_NOEC(GpfltHandler, T_GPFLT)
-TRAPHANDLER_NOEC(PgfltHandler, T_PGFLT)
+TRAPHANDLER(TssHandler, T_TSS)
+TRAPHANDLER(SegnpHandler, T_SEGNP)
+TRAPHANDLER(StackHandler, T_STACK)
+TRAPHANDLER(GpfltHandler, T_GPFLT)
+TRAPHANDLER(PgfltHandler, T_PGFLT)
 /*T_RES is reserved*/
 TRAPHANDLER_NOEC(FperrHandler, T_FPERR)
 TRAPHANDLER_NOEC(AlignHandler, T_ALIGN)
 TRAPHANDLER_NOEC(MchkHandler, T_MCHK)
 TRAPHANDLER_NOEC(SimderrHandler, T_SIMDERR)
 TRAPHANDLER_NOEC(SyscallHandler, T_SYSCALL)
+
 /*
  * Lab 3: Your code here for _alltraps
  */
 _alltraps:
-	pushw $0
 	pushw %ds 
-	pushw $0
 	pushw %es 
 	pushal
 	movw $GD_KD, %ax
