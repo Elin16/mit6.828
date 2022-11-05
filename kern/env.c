@@ -350,6 +350,7 @@ load_icode(struct Env *e, uint8_t *binary)
 	if (ELFHDR->e_magic != ELF_MAGIC) {
 		panic("load_icode(): Given binary ifs not ELF.");
 	}
+
 	e->env_tf.tf_eip = ELFHDR->e_entry;
 	ph = (struct Proghdr*) (binary + ELFHDR->e_phoff);
 	lcr3(PADDR(e->env_pgdir));
@@ -357,8 +358,8 @@ load_icode(struct Env *e, uint8_t *binary)
 	for (; ph < ph + ELFHDR->e_phnum; ++ph){
 		if( ph->p_type == ELF_PROG_LOAD){
 			region_alloc(e, (void*)ph->p_va, ph->p_memsz);
-			memmove((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
-			memset((void*)ph->p_va + ph->p_filesz, 0, ph->p_memsz-ph->p_filesz);
+			memset((void*) (ph->p_va), 0, ph->p_memsz);
+			memcpy((void*)(ph->p_va),(void*)(binary + ph->p_offset), ph->p_filesz);
 		}
 	}
 	
