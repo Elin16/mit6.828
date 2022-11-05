@@ -87,6 +87,7 @@ trap_init(void)
 	void MchkHandler();
 	void SimderrHandler();
 	void SyscallHandler();
+	void DefaultHandler();
 	//initialize idt to point to each of these entry
 	SETGATE(idt[T_DIVIDE], 0, GD_KT, DivideHandler, 0);
 	SETGATE(idt[T_DEBUG], 0, GD_KT, DebugHandler, 0);
@@ -109,6 +110,7 @@ trap_init(void)
 	SETGATE(idt[T_MCHK], 0, GD_KT, MchkHandler, 0);
 	SETGATE(idt[T_SIMDERR], 0, GD_KT, SimderrHandler, 0);
 	SETGATE(idt[T_SYSCALL], 0, GD_KT, SyscallHandler, 0);
+	SETGATE(idt[T_DEFAULT], 0, GD_KT, DefaultHandler, 0);
 	// Per-CPU setup 
 	trap_init_percpu();
 }
@@ -139,6 +141,8 @@ trap_init_percpu(void)
 void
 print_trapframe(struct Trapframe *tf)
 {
+	cprintf("I am in print_trapframe.");
+	cprintf("show me %s",trapname(tf->tf_trapno));
 	cprintf("TRAP frame at %p\n", tf);
 	print_regs(&tf->tf_regs);
 	cprintf("  es   0x----%04x\n", tf->tf_es);
