@@ -108,6 +108,7 @@ trap_init(void)
 	SETGATE(idt[T_ALIGN], 0, GD_KT, AlignHandler, 0);
 	SETGATE(idt[T_MCHK], 0, GD_KT, MchkHandler, 0);
 	SETGATE(idt[T_SIMDERR], 0, GD_KT, SimderrHandler, 0);
+	SETGATE(idt[T_SYSCALL], 0, GD_KT, SyscallHandler, 0);
 	// Per-CPU setup 
 	trap_init_percpu();
 }
