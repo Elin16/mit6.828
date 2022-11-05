@@ -346,13 +346,12 @@ load_icode(struct Env *e, uint8_t *binary)
 	// LAB 3: Your code here.
 	struct Elf *ELFHDR = (struct Elf *) binary;
 	struct Proghdr *ph;
-	int ph_num;
 	if (ELFHDR->e_magic != ELF_MAGIC) {
 		panic("load_icode(): Given binary ifs not ELF.");
 	}
 	ph = (struct Proghdr*) (ELFHDR + ELFHDR->e_phoff);
 	lcr3(PADDR(e->env_pgdir));
-	for (int i = 0; i < ph_num; ++i){
+	for (int i = 0; i < ELFHDR->e_phnum; ++i){
 		if( ph[i].p_type == ELF_PROG_LOAD){
 			region_alloc(e, (void*)ph[i].p_va, ph[i].p_memsz);
 			memset((void*)ph[i].p_va, 0,ph[i].p_memsz);
