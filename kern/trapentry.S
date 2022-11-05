@@ -72,8 +72,8 @@ TRAPHANDLER_NOEC(SyscallHandler, T_SYSCALL)
  * Lab 3: Your code here for _alltraps
  */
 _alltraps:
-	pushw %ds 
-	pushw %es 
+	pushl %ds 
+	pushl %es 
 	pushal
 	movw $GD_KD, %ax
 	movw %ax, %ds
