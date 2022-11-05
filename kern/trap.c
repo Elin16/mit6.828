@@ -86,7 +86,7 @@ trap_init(void)
 	void AlignHandler();
 	void MchkHandler();
 	void SimderrHandler();
-
+	void SyscallHandler();
 	//initialize idt to point to each of these entry
 	SETGATE(idt[T_DIVIDE], 0, GD_KT, DivideHandler, 0);
 	SETGATE(idt[T_DEBUG], 0, GD_KT, DebugHandler, 0);
