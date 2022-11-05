@@ -120,6 +120,7 @@ env_init(void)
 	for (int i = NENV - 1; i >= 0; --i) {
 		envs[i].env_status = ENV_FREE;
 		envs[i].env_link = env_free_list;
+		envs[i].env_id = 0;
 		env_free_list = envs + i;
 	}
 	// Per-CPU part of the initialization
@@ -277,8 +278,8 @@ region_alloc(struct Env *e, void *va, size_t len)
 	if (e == NULL){
 		panic("region_alloc(): Point of struct Env e is NULL. Fail code: %e\n", -E_BAD_ENV);
 	}
-	uintptr_t lva = (unsigned int)ROUNDDOWN((unsigned int)va, PGSIZE);
-	uintptr_t rva = (unsigned int)ROUNDUP(va+len, PGSIZE);
+	uintptr_t lva = (unsigned int)ROUNDDOWN((uint32_t)va, PGSIZE);
+	uintptr_t rva = (unsigned int)ROUNDUP((uint32_t)va+len, PGSIZE);
 	struct PageInfo *p;
 	for( uintptr_t i = lva; i < rva; i+= PGSIZE){
 		p = page_alloc(0);
@@ -349,7 +350,7 @@ load_icode(struct Env *e, uint8_t *binary)
 	if (ELFHDR->e_magic != ELF_MAGIC) {
 		panic("load_icode(): Given binary ifs not ELF.");
 	}
-	ph = (struct Proghdr*) (ELFHDR + ELFHDR->e_phoff);
+	ph = (struct Proghdr*) ((uint32_t)ELFHDR + ELFHDR->e_phoff);
 	lcr3(PADDR(e->env_pgdir));
 	for (int i = 0; i < ELFHDR->e_phnum; ++i){
 		if( ph[i].p_type == ELF_PROG_LOAD){
@@ -358,13 +359,14 @@ load_icode(struct Env *e, uint8_t *binary)
 			memcmp((void*)ph[i].p_va, binary + ph[i].p_offset, ph[i].p_filesz);
 		}
 	}
-	lcr3(PADDR(kern_pgdir));
-	e->env_tf.tf_eip = ELFHDR->e_entry;
+	
 	// Now map one page for the program's initial stack
 	// at virtual address USTACKTOP - PGSIZE.
 
 	// LAB 3: Your code here.
 	region_alloc(e, (void *)(USTACKTOP - PGSIZE), PGSIZE);
+	lcr3(PADDR(kern_pgdir));
+	e->env_tf.tf_eip = ELFHDR->e_entry;
 }
 
 //

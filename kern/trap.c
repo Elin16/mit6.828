@@ -191,7 +191,7 @@ trap_dispatch(struct Trapframe *tf)
 {
 	// Handle processor exceptions.
 	// LAB 3: Your code here.
-	cprintf("I am in trap_dispatch");
+	cprintf("I am in trap_dispatch\n");
 	if( tf->tf_trapno == T_PGFLT) {
 		page_fault_handler(tf);
 	}else if (tf->tf_trapno == T_BRKPT){
