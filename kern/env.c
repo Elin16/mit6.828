@@ -116,12 +116,11 @@ env_init(void)
 {
 	// Set up envs array
 	// LAB 3: Your code here.
-	env_free_list = NULL;
 	for (int i = NENV - 1; i >= 0; --i) {
 		struct Env *e = &envs[i];
 		e->env_id = 0;
 		e->env_status = ENV_FREE;
-		envs[i].env_link = env_free_list;
+		e->env_link = env_free_list;
 		env_free_list = e;
 	}
 	// Per-CPU part of the initialization
@@ -186,9 +185,9 @@ env_setup_vm(struct Env *e)
 	//    - The functions in kern/pmap.h are handy.
 
 	// LAB 3: Your code here.
-	e->env_pgdir = page2kva(p);
-	memcpy(e->env_pgdir, kern_pgdir, PGSIZE);
+	e->env_pgdir = (pde_t *)page2kva(p);
 	p->pp_ref ++;
+	memcpy(e->env_pgdir, kern_pgdir, PGSIZE);
 	// UVPT maps the env's own page table read-only.
 	// Permissions: kernel R, user R
 	e->env_pgdir[PDX(UVPT)] = PADDR(e->env_pgdir) | PTE_P | PTE_U;
@@ -279,16 +278,16 @@ region_alloc(struct Env *e, void *va, size_t len)
 	if (e == NULL){
 		panic("region_alloc(): Point of struct Env e is NULL. Fail code: %e\n", -E_BAD_ENV);
 	}
-	void* lva = (void*)ROUNDDOWN((unsigned int)va, PGSIZE);
+	void* lva = (void*)ROUNDDOWN(va, PGSIZE);
 	void* rva = (void*)ROUNDUP(va+len, PGSIZE);
 	struct PageInfo *p;
 	for(; lva < rva; lva+= PGSIZE){
 		p = page_alloc(0);
 		if ( p == NULL){
 			panic("regin_alloc(): Out of memory. Fail code %e\n",-E_NO_MEM);
-		}else{
-			page_insert(e->env_pgdir, p, lva, PTE_W | PTE_U);
-		}
+		} 
+		page_insert(e->env_pgdir, p, lva, PTE_W | PTE_U);
+		
 	}
 }
 
@@ -350,10 +349,11 @@ load_icode(struct Env *e, uint8_t *binary)
 	if (ELFHDR->e_magic != ELF_MAGIC) {
 		panic("load_icode(): Given binary ifs not ELF.");
 	}
-	struct Proghdr *ph;
-	ph = (struct Proghdr*) ((uint8_t*)ELFHDR + ELFHDR->e_phoff);
+	struct Proghdr *ph = (struct Proghdr*) ((uint8_t*)ELFHDR + ELFHDR->e_phoff);
+	struct Proghdr *eph = ph + ELFHDR->e_phnum;
 	lcr3(PADDR(e->env_pgdir));
-	for (; ph < ph + ELFHDR->e_phnum; ++ ph){
+	
+	for (; ph < eph; ++ ph){
 		if( ph->p_type == ELF_PROG_LOAD){
 			region_alloc(e, (void*)ph->p_va, ph->p_memsz);
 			memset((void*)ph->p_va, 0,ph->p_memsz);
