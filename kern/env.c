@@ -279,8 +279,8 @@ region_alloc(struct Env *e, void *va, size_t len)
 	if (e == NULL){
 		panic("region_alloc(): Point of struct Env e is NULL. Fail code: %e\n", -E_BAD_ENV);
 	}
-	void* lva = ROUNDDOWN((unsigned int)va, PGSIZE);
-	void* rva = ROUNDUP(va+len, PGSIZE);
+	void* lva = (void*)ROUNDDOWN((unsigned int)va, PGSIZE);
+	void* rva = (void*)ROUNDUP(va+len, PGSIZE);
 	struct PageInfo *p;
 	for(; lva < rva; lva+= PGSIZE){
 		p = page_alloc(0);
