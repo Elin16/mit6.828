@@ -71,7 +71,6 @@ TRAPHANDLER_NOEC(handler48, T_SYSCALL)
 /*
  * Lab 3: Your code here for _alltraps
  */
-global ._alltraps
 _alltraps:
         pushl %ds 
         pushl %es 
