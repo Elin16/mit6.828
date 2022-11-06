@@ -118,11 +118,12 @@ env_init(void)
 	// LAB 3: Your code here.
 	env_free_list = NULL;
 	for (int i = NENV - 1; i >= 0; --i) {
-		envs[i].env_status = ENV_FREE;
+		struct Env *e = &envs[i];
+		e->env_id = 0;
+		e->env_status = ENV_FREE;
 		envs[i].env_link = env_free_list;
-		env_free_list = envs + i;
+		env_free_list = e;
 	}
-	cprintf("Env print\n");//debug
 	// Per-CPU part of the initialization
 	env_init_percpu();
 }
@@ -278,15 +279,15 @@ region_alloc(struct Env *e, void *va, size_t len)
 	if (e == NULL){
 		panic("region_alloc(): Point of struct Env e is NULL. Fail code: %e\n", -E_BAD_ENV);
 	}
-	uintptr_t lva = (unsigned int)ROUNDDOWN((unsigned int)va, PGSIZE);
-	uintptr_t rva = (unsigned int)ROUNDUP(va+len, PGSIZE);
+	void* lva = (unsigned int)ROUNDDOWN((unsigned int)va, PGSIZE);
+	void* rva = (unsigned int)ROUNDUP(va+len, PGSIZE);
 	struct PageInfo *p;
-	for( uintptr_t i = lva; i < rva; i+= PGSIZE){
+	for(; lva < rva; lva+= PGSIZE){
 		p = page_alloc(0);
 		if ( p == NULL){
 			panic("regin_alloc(): Out of memory. Fail code %e\n",-E_NO_MEM);
 		}else{
-			page_insert(e->env_pgdir, p, (void *)i, PTE_W | PTE_U | PTE_P );
+			page_insert(e->env_pgdir, p, lva, PTE_W | PTE_U);
 		}
 	}
 }
@@ -346,17 +347,17 @@ load_icode(struct Env *e, uint8_t *binary)
 
 	// LAB 3: Your code here.
 	struct Elf *ELFHDR = (struct Elf *) binary;
-	struct Proghdr *ph;
 	if (ELFHDR->e_magic != ELF_MAGIC) {
 		panic("load_icode(): Given binary ifs not ELF.");
 	}
-	ph = (struct Proghdr*) (ELFHDR + ELFHDR->e_phoff);
+	struct Proghdr *ph;
+	ph = (struct Proghdr*) ((uint8_t*)ELFHDR + ELFHDR->e_phoff);
 	lcr3(PADDR(e->env_pgdir));
-	for (int i = 0; i < ELFHDR->e_phnum; ++i){
-		if( ph[i].p_type == ELF_PROG_LOAD){
-			region_alloc(e, (void*)ph[i].p_va, ph[i].p_memsz);
-			memset((void*)ph[i].p_va, 0,ph[i].p_memsz);
-			memcmp((void*)ph[i].p_va, binary + ph[i].p_offset, ph[i].p_filesz);
+	for (; ph < ph + ELFHDR->e_phnum; ++ ph){
+		if( ph->p_type == ELF_PROG_LOAD){
+			region_alloc(e, (void*)ph->p_va, ph->p_memsz);
+			memset((void*)ph->p_va, 0,ph->p_memsz);
+			memcmp((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
 		}
 	}
 	lcr3(PADDR(kern_pgdir));
@@ -383,8 +384,8 @@ env_create(uint8_t *binary, enum EnvType type)
 	if( env_alloc(&e,0) !=0 ){
 		panic("Can't create Env. Fail code: %r",E_FAULT);
 	}
-	load_icode(e, binary);
 	e->env_type = type;
+	load_icode(e, binary);
 }
 
 //
