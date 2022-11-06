@@ -180,7 +180,7 @@ mem_init(void)
 	//      (ie. perm = PTE_U | PTE_P)
 	//    - pages itself -- kernel RW, user NONE
 	// Your code goes here:
-	boot_map_region(kern_pgdir, UENVS, PTSIZE, PADDR(pages), PTE_U);
+	boot_map_region(kern_pgdir, UPAGES, page_mem_size, PADDR(pages), PTE_U);
 	//cprintf("npages*sizeof(PageInfo):%d\nsizeof(PageInfo:%d)",npages*sizeof(struct PageInfo),sizeof(struct PageInfo));
 	//page itself?
 	//////////////////////////////////////////////////////////////////////
@@ -753,8 +753,6 @@ check_kern_pgdir(void)
 	// check pages array
 	n = ROUNDUP(npages*sizeof(struct PageInfo), PGSIZE);
 	for (i = 0; i < n; i += PGSIZE)
-		assert(check_va2pa(pgdir, UPAGES + i) == PADDR(pages) + i);
-
 	// check envs array (new test for lab 3)
 	n = ROUNDUP(NENV*sizeof(struct Env), PGSIZE);
 	for (i = 0; i < n; i += PGSIZE)
