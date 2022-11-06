@@ -65,7 +65,7 @@ trap_init(void)
 	extern struct Segdesc gdt[];
 
 	// LAB 3: Your code here.
-	 void handler0();
+	void handler0();
     void handler1();
     void handler2();
     void handler3();

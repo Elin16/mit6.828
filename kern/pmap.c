@@ -180,7 +180,7 @@ mem_init(void)
 	//      (ie. perm = PTE_U | PTE_P)
 	//    - pages itself -- kernel RW, user NONE
 	// Your code goes here:
-	boot_map_region(kern_pgdir, UPAGES, page_mem_size, PADDR(pages), PTE_U);
+	boot_map_region(kern_pgdir, UENVS, PTSIZE, PADDR(pages), PTE_U);
 	//cprintf("npages*sizeof(PageInfo):%d\nsizeof(PageInfo:%d)",npages*sizeof(struct PageInfo),sizeof(struct PageInfo));
 	//page itself?
 	//////////////////////////////////////////////////////////////////////
