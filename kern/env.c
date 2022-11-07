@@ -351,16 +351,18 @@ load_icode(struct Env *e, uint8_t *binary)
 	}
 	struct Proghdr *ph = (struct Proghdr*) ((uint8_t*)ELFHDR + ELFHDR->e_phoff);
 	struct Proghdr *eph = ph + ELFHDR->e_phnum;
-	lcr3(PADDR(e->env_pgdir));
+	
 	
 	for (; ph < eph; ++ ph){
 		if( ph->p_type == ELF_PROG_LOAD){
 			region_alloc(e, (void*)ph->p_va, ph->p_memsz);
+			lcr3(PADDR(e->env_pgdir));
 			memset((void*)ph->p_va, 0,ph->p_memsz);
 			memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
+			lcr3(PADDR(kern_pgdir));
 		}
 	}
-	lcr3(PADDR(kern_pgdir));
+	
 	e->env_tf.tf_eip = ELFHDR->e_entry;
 	// Now map one page for the program's initial stack
 	// at virtual address USTACKTOP - PGSIZE.
